@@ -1,0 +1,61 @@
+buildscript {
+    repositories {
+        maven { url "http://repo.spring.io/libs-snapshot" }
+        mavenLocal()
+    }
+    /*dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.1.RELEASE")
+    }*/
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+//apply plugin: 'spring-boot'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+    maven { url "http://repo.spring.io/libs-milestone" }
+    maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+}
+
+version = '0.1.0'
+ext.sharedManifest = manifest {
+    attributes('Implementation-Title': 'PubSolr plugin',
+               'Implementation-Version': version,
+               'Main-Class': 'com.agi.pubsolr.cli.CompoundsApp')
+}
+
+jar {
+    baseName = project.name
+    manifest = project.manifest {
+        from sharedManifest
+    }
+}
+
+task cli(type: Jar) {
+    baseName = project.name+'-cli'
+    manifest = project.manifest {
+        from sharedManifest
+    }
+    from {
+    	Set<String> included = new HashSet<>();
+    	configurations.compile.filter{ it.name.startsWith('commons-') || it.name.startsWith('lucene-core') }
+    		.collect { /*System.out.println(it.name);*/ it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+dependencies {
+	//compile 'org.springframework.boot:spring-boot-starter:1.2.1.RELEASE'
+	compile 'org.apache.solr:solr:4.10.3'
+	compile 'commons-cli:commons-cli:1.2'
+	compile 'commons-logging:commons-logging:1.2'
+	//testCompile 'org.springframework:spring-test:4.1.3.RELEASE'
+	testCompile 'junit:junit:4.12'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2.1'
+}
