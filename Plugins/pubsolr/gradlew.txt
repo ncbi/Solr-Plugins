@@ -1,3 +1,0 @@
-FILE DELETED
-
-The NIH Central Email Service Virus Scanner removed the original file "pubsolr.zip->gradlew.bat" because the attachment type is included in the  FILE FILTER= DHHS/NIH Default: *.bat.
