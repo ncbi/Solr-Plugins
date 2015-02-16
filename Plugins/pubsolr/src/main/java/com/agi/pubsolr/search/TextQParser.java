@@ -21,14 +21,17 @@ import org.apache.solr.search.SyntaxError;
 
 /**
  * @author Rafis
- *
  */
 public class TextQParser extends QParser {
 	private final String field;
+	private final float keywordBoost;
 
 	public TextQParser(String qstr, SolrParams localParams, SolrParams params, SolrQueryRequest req, String field) {
 		super(qstr, localParams, params, req);
 		this.field = field;
+		SolrParams solrParams = SolrParams.wrapDefaults(localParams, params);
+		Float boost = solrParams.getFieldFloat(field, "keyword.boost");
+		this.keywordBoost = boost != null ? boost : 5.0f;
 	}
 
 	@Override
@@ -44,7 +47,7 @@ public class TextQParser extends QParser {
 				TermQuery termQuery = new TermQuery(new Term(field, term));
 				int len = lenAtt.getPositionLength();
 				if (keyAtt.isKeyword()) {
-					termQuery.setBoost(len * 5.0f);
+					termQuery.setBoost(len * keywordBoost);
 				}
 				query.add(termQuery, len == 1 ? Occur.MUST : Occur.SHOULD);
 			}
